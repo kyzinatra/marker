@@ -1,0 +1,13 @@
+services:
+  leti-bot:
+    build: ./
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: npm start
+    ports:
+      - 80:80
+
+volumes:
+  data:
+  node_modules:
