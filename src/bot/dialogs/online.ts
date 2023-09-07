@@ -1,11 +1,11 @@
 import puppeteer from "puppeteer";
 import { getBot } from "../get";
-import { error } from "../../utils/error";
 import { goPoint } from "../../app/goPoint";
 import { login } from "../../app/login";
 import { Users } from "../../service/users";
 import { User } from "../../service/user";
 import { check } from "./check";
+import { isAvalible } from "../../constants/isAvalible";
 
 export async function onlineDialog() {
 	const bot = await getBot();
@@ -16,8 +16,9 @@ export async function onlineDialog() {
 			await bot.sendMessage(id, "Браузер уже создан");
 			return;
 		}
-		bot.sendMessage(id, "Создаем для вас браузер");
 
+		bot.sendMessage(id, "Создаем для вас браузер");
+		isAvalible.state = false;
 		const browser = await puppeteer.launch({
 			headless: process.argv[2] === "--dev" ? false : "new",
 			executablePath: process.argv[2] === "--dev" ? undefined : "/usr/bin/google-chrome",
@@ -25,17 +26,26 @@ export async function onlineDialog() {
 		});
 
 		const page = await browser.newPage();
-		const isLogin = await login(id, page).catch((e) => error(e, id));
+		const userPage = new User(page, browser, 0, id);
+		Users.addUser(userPage);
+		isAvalible.state = true;
+
+		const isLogin = await login(id, page).catch((e) => null);
+
+		if (!Users.getUser(id)) return; // Проверяем не закрыл ли пользователя бота по пути
 		if (!isLogin) return await browser.close();
-		await goPoint(id, page).catch((e) => error(e, id));
+
+		await goPoint(id, page).catch((e) => null);
+		if (!Users.getUser(id)) return; // Проверяем не закрыл ли пользователя бота по пути
 
 		const intervalId = setInterval(() => {
 			check(id, intervalId);
 		}, 45 * 60 * 1000);
-
-		Users.addUser(new User(page, browser, intervalId, id));
+		userPage.intervalId = intervalId;
 
 		await bot.sendMessage(id, "Браузер успешно создан");
-		await check(id, intervalId);
+		isAvalible.state = false;
+		await check(id);
+		isAvalible.state = true;
 	});
 }

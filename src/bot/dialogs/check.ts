@@ -8,7 +8,7 @@ export async function check(id: string | number, intervalId?: NodeJS.Timeout) {
 	const bot = await getBot();
 	if (!user) {
 		bot.sendMessage(id, "Была инициирована проверка, но браузер найден не был. Попробуйте команду /online");
-		return clearInterval(intervalId);
+		return Users.removeUser(id);
 	}
 	const { page } = user;
 
