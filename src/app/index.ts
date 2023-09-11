@@ -8,13 +8,20 @@ import { getBot } from "../bot/get";
 
 export async function init() {
 	const bot = await getBot();
-	Users.getAllChats().forEach((chat) => {
-		bot.sendMessage(chat, "Вышло новое обновление бота. Необходима повторная авторизация командой /online");
-	});
+	try {
+		Users.getAllChats().forEach((chat) => {
+			bot.sendMessage(
+				chat,
+				"На ИС Посещаемость что-то поменялось. Вышло новое обновление бота. Необходима повторная авторизация командой /online"
+			);
+		});
 
-	startDialog();
-	stopDialog();
-	onlineDialog();
-	checkDialog();
-	screenDialog();
+		startDialog();
+		stopDialog();
+		onlineDialog();
+		checkDialog();
+		screenDialog();
+	} catch (e) {
+		bot.sendMessage("626453947", (e as Error).message);
+	}
 }

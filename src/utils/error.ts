@@ -1,6 +1,10 @@
 import { getBot } from "../bot/get";
 
-export async function error(error: any, id: string | number) {
+// Логи для тестов. Пока еще альфа версия нужно логить все ошибки.
+export async function error(error: any, id: string | number, placeId?: number) {
 	const bot = await getBot();
-	bot.sendMessage(id, "Произошла ошибка: " + error?.message || "неизвестно");
+	bot.sendMessage(
+		626453947,
+		`Произошла ошибка у пользователя ${id} на месте ${placeId}: ` + error?.message || "неизвестно"
+	);
 }

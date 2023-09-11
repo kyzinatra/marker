@@ -6,6 +6,7 @@ import { Users } from "../../service/users";
 import { User } from "../../service/user";
 import { check } from "./check";
 import { isAvalible } from "../../constants/isAvalible";
+import { error } from "../../utils/error";
 
 export async function onlineDialog() {
 	const bot = await getBot();
@@ -30,22 +31,22 @@ export async function onlineDialog() {
 		Users.addUser(userPage);
 		isAvalible.state = true;
 
-		const isLogin = await login(id, page).catch((e) => null);
+		const isLogin = await login(id, page).catch((e) => error(e, id, 5));
 
 		if (!Users.getUser(id)) return; // Проверяем не закрыл ли пользователя бота по пути
-		if (!isLogin) return await browser.close();
+		if (!isLogin) return await browser.close().catch((e) => error(e, id, 6));
 
-		await goPoint(id, page).catch((e) => null);
+		await goPoint(id, page).catch((e) => error(e, id, 7));
 		if (!Users.getUser(id)) return; // Проверяем не закрыл ли пользователя бота по пути
 
 		const intervalId = setInterval(() => {
-			check(id, intervalId);
+			check(id, intervalId).catch((e) => error(e, id, 8));
 		}, 45 * 60 * 1000);
 		userPage.intervalId = intervalId;
 
 		await bot.sendMessage(id, "Браузер успешно создан");
 		isAvalible.state = false;
-		await check(id);
+		await check(id).catch((e) => error(e, id, 9));
 		isAvalible.state = true;
 	});
 }
