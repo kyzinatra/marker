@@ -40,13 +40,13 @@ export async function onlineDialog() {
 		if (!Users.getUser(id)) return; // Проверяем не закрыл ли пользователя бота по пути
 
 		const intervalId = setInterval(() => {
-			check(id, intervalId).catch((e) => error(e, id, 8));
+			check(id, intervalId);
 		}, 45 * 60 * 1000);
 		userPage.intervalId = intervalId;
 
 		await bot.sendMessage(id, "Браузер успешно создан");
 		isAvalible.state = false;
-		await check(id).catch((e) => error(e, id, 9));
+		await check(id);
 		isAvalible.state = true;
 	});
 }
