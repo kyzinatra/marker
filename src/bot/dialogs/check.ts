@@ -13,7 +13,7 @@ export async function check(id: string | number, intervalId?: NodeJS.Timeout) {
 	const { page } = user;
 
 	await page.reload({ waitUntil: "load" }).catch((e) => error(e, id, 0));
-	await page.waitForSelector(MARK_BUTTON, { timeout: 10000 });
+	await page.waitForSelector(MARK_BUTTON, { timeout: 10000 }).catch((e) => null);
 	const markers = await page.$$(MARK_BUTTON).catch((e) => error(e, id, 2));
 	markers?.forEach((el) => el.click().catch((e) => error(e, id, 3)));
 }
